@@ -2,9 +2,9 @@
   "domain": "opnsense_internet_control",
   "name": "OPNsense Internet Control",
   "version": "0.2.0",
-  "documentation": "https://github.com/YOUR_GITHUB/opnsense_internet_control",
+  "documentation": "https://github.com/cbarnthouse/opnsense_internet_control",
   "requirements": [],
   "dependencies": [],
-  "codeowners": ["@yourgithubusername"],
+  "codeowners": ["@cbarnthouse"],
   "iot_class": "cloud_polling"
 }
