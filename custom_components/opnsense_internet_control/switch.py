@@ -68,22 +68,22 @@ class OPNsenseInternetSwitch(SwitchEntity):
     def is_on(self):
         return self._state
 
-    def _get_alias_content(self):
-        endpoint = f"{self._url}/api/firewall/alias/get"
-        try:
-            response = requests.get(endpoint, auth=(self._api_key, self._api_token), verify=False, timeout=10)
-            if response.status_code == 200:
-                aliases = response.json().get('aliases', [])
-                for alias in aliases:
-                    if alias.get('name') == self._alias:
-                        return alias.get('content', [])
-                _LOGGER.error(f"Alias {self._alias} not found in OPNsense response.")
-            else:
-                _LOGGER.error(f"Failed to get aliases: {response.text}")
-        except Exception as e:
-            _LOGGER.error(f"Error fetching aliases: {e}")
-        return []
-
+def _get_alias_content(self):
+    endpoint = f"{self._url}/api/firewall/alias/get"
+    try:
+        response = requests.get(endpoint, auth=(self._api_key, self._api_token), verify=False, timeout=10)
+        if response.status_code == 200:
+            aliases = response.json()
+            for alias_id, alias_data in aliases.items():
+                if alias_data.get('name') == self._alias:
+                    content = alias_data.get('content', {})
+                    return list(content.keys())
+            _LOGGER.error(f"Alias {self._alias} not found in OPNsense response.")
+        else:
+            _LOGGER.error(f"Failed to get aliases: {response.text}")
+    except Exception as e:
+        _LOGGER.error(f"Error fetching aliases: {e}")
+    return []
     def _set_alias_content(self, addresses):
         endpoint = f"{self._url}/api/firewall/alias/set"
         data = {"name": self._alias, "addresses": addresses}
