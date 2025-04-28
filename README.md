@@ -20,5 +20,3 @@ switch:
       - name: "XBox"
         ip: "192.168.130.122"
 ```
-
-✅ Updated for OPNsense API `/api/firewall/alias/get` and `/set`.
