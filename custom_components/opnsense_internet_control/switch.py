@@ -76,9 +76,9 @@ class OPNsenseInternetSwitch(SwitchEntity):
             response = requests.get(endpoint, auth=(self._api_key, self._api_token), verify=False, timeout=10)
             if response.status_code == 200:
                 aliases_wrapper = response.json()
-                aliases = aliases_wrapper.get('alias', {}).get('aliases', {})
-                _LOGGER.debug(f"Found {len(aliases)} aliases in response")
-                for alias_id, alias_data in aliases.items():
+                all_aliases = aliases_wrapper.get('alias', {}).get('aliases', {}).get('alias', {})  # <- FIX HERE
+                _LOGGER.debug(f"Found {len(all_aliases)} aliases in response: {list(all_aliases.keys())}")
+                for alias_id, alias_data in all_aliases.items():
                     alias_name = alias_data.get('name')
                     _LOGGER.debug(f"Checking alias {alias_id} with name {alias_name}")
                     if alias_name == self._alias:
@@ -99,26 +99,43 @@ class OPNsenseInternetSwitch(SwitchEntity):
         if not self._uuid:
             _LOGGER.error(f"No UUID found for alias {self._alias}. Cannot update.")
             return
-
+    
         endpoint = f"{self._url}/api/firewall/alias/setItem/{self._uuid}"
+        content_str = "\n".join(addresses)
+    
         data = {
-            "enabled": "1",
-            "name": self._alias,
-            "type": "host",
-            "proto": "IPv4",
-            "content": {ip: {"value": ip, "selected": 1} for ip in addresses}
+            "alias": {
+                "enabled": "1",
+                "name": self._alias,
+                "type": "host",
+                "proto": "",
+                "categories": "",
+                "updatefreq": "",
+                "content": f"{content_str}",
+                "path_expression": "",
+                "authtype": "",
+                "username": "",
+                "password": "",
+                "interface": "",
+                "counters": "1",
+                "description": ""
+            },
+            "network_content": "",
+            "authgroup_content": ""
         }
-
+    
+        _LOGGER.debug(f"Setting alias at {endpoint} with data: {data}")
+    
         try:
-            _LOGGER.debug(f"Setting alias with data: {data}")
             response = requests.post(endpoint, auth=(self._api_key, self._api_token), json=data, verify=False, timeout=10)
-            if response.status_code != 200:
-                _LOGGER.error(f"Failed to update alias {self._alias}: {response.status_code} - {response.text}")
+            if response.status_code == 200:
+                _LOGGER.info(f"Alias '{self._alias}' updated successfully!")
+                self._reload_firewall()
             else:
-                _LOGGER.info(f"Alias {self._alias} updated successfully!")
+                _LOGGER.error(f"Failed to update alias: {response.status_code} - {response.text}")
         except Exception as e:
-            _LOGGER.exception(f"Error updating alias content: {e}")
-
+            _LOGGER.exception(f"Exception occurred while setting alias content: {e}")
+     
     def _reload_firewall(self):
         endpoint = f"{self._url}/api/firewall/filter/reload"
         try:
