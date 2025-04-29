@@ -16,7 +16,4 @@ switch:
     api_key: "YOUR_API_KEY"
     api_token: "YOUR_API_TOKEN"
     alias: "blocked_devices"
-    devices:
-      - name: "XBox"
-        ip: "192.168.130.122"
 ```
