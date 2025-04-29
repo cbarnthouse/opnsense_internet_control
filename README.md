@@ -20,6 +20,7 @@ switch:
 
 ## Minimal API Permissions Required
 
+```
 For the OPNsense Internet Control Home Assistant integration to work correctly, the API key/token user must have access to the following permissions:
 Area	Permission
 Firewall	Firewall Aliases
@@ -27,6 +28,7 @@ Firewall	Firewall Alias Edit
 Firewall	Firewall Rules
 Firewall	Firewall Rules Edit
 Status	DHCP Leases
+'''
 
 ## Permission	Purpose
 Firewall Aliases	View existing aliases (for loading device block lists).
